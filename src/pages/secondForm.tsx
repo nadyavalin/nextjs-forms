@@ -1,10 +1,10 @@
 import { useCallback } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, UseFormReturn } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import "./styles.css";
 import { addForm } from "../store/formSlice";
-import { FormValues, FormState } from "../types/types";
+import { FormState } from "../types/types";
 import { formSchema } from "../validation/formSchema";
 import { RootState } from "../store/store";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,35 +19,30 @@ export const SecondForm = () => {
     handleSubmit,
     control,
     formState: { errors, isValid },
-  } = useForm<FormValues>({
+  }: UseFormReturn<FormState> = useForm<FormState>({
     resolver: yupResolver(formSchema),
     mode: "onChange",
   });
 
   const onSubmit = useCallback(
-    (data: FormValues) => {
-      const processFormData = (pictureData: string | null) => {
-        const formState: FormState = {
-          ...data,
-          picture: pictureData,
-          isNew: true
-        };
-        dispatch(addForm(formState));
-        navigate("/");
+    (data: FormState) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          dispatch(addForm({ ...data, picture: reader.result.toString() }));
+          navigate("/");
+        }
       };
-
-      if (data.picture && data.picture.length > 0) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          processFormData(reader.result as string);
-        };
+      if (data.picture && data.picture[0]) {
         reader.readAsDataURL(data.picture[0]);
       } else {
-        processFormData(null);
+        dispatch(addForm({ ...data, isNew: true }));
+        navigate("/");
       }
     },
     [dispatch, navigate],
   );
+
   return (
     <main className="main">
       <h1>Second Form</h1>
@@ -123,7 +118,7 @@ export const SecondForm = () => {
             <p className="error">{errors.country?.message}</p>
           </div>
         </div>
-      <div className="form__item">
+        <div className="form__item">
           <label htmlFor="picture">Upload photo:</label>
           <div className="input__picture-block">
             <input

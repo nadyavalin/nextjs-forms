@@ -1,4 +1,5 @@
-export interface FormData {
+export interface FormState {
+  id: number;
   name: string;
   age: number;
   email: string;
@@ -6,40 +7,19 @@ export interface FormData {
   confirmPassword: string;
   gender: string;
   country: string;
-  picture: FileList;
-  terms: boolean;
-}
-
-export interface FormState extends Omit<FormData, "picture"> {
   picture: string | null;
+  terms: boolean;
   isNew?: boolean;
 }
 
 export interface ErrorState {
   name?: string;
-  age?: string;
+  age?: number;
   email?: string;
   password?: string;
   confirmPassword?: string;
   gender?: string;
   country?: string;
   picture?: string;
-  terms?: string;
-}
-
-export interface FormValues {
-  name: string;
-  age: number;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  gender: string;
-  country: string;
-  picture: FileList;
-  terms: boolean;
-}
-
-export interface FormState extends Omit<FormValues, 'picture'> {
-  picture: string | null;
-  isNew?: boolean;
+  terms?: boolean;
 }
